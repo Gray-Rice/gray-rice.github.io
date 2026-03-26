@@ -1,0 +1,4 @@
+[submodule "external/blog-content"]
+	path = external/blog-content
+	url = https://github.com/Gray-Rice/gray-rice-blogs.git
+	branch = main
