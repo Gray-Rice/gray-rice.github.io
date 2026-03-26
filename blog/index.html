@@ -1,0 +1,15 @@
+---
+layout: page
+title: Blog
+permalink: /blog/
+---
+
+<ul class="post-list">
+  {% for post in paginator.posts %}
+    <li>
+      <h2><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h2>
+      <p class="meta">{{ post.date | date: "%B %d, %Y" }}</p>
+      {% if post.excerpt %}<p>{{ post.excerpt | strip_html }}</p>{% endif %}
+    </li>
+  {% endfor %}
+</ul>
