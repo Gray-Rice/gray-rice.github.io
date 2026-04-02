@@ -1,0 +1,62 @@
+name: Bump blog submodule (auto PR)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main repo (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Update submodule to latest blog main
+        run: |
+          set -euo pipefail
+
+          # Ensure submodule is initialized
+          git submodule update --init --recursive
+
+          # Update submodule working tree to latest origin/main
+          git -C external/blog-content fetch origin main
+          git -C external/blog-content checkout main
+          git -C external/blog-content pull --ff-only origin main
+
+          # Stage the submodule pointer change (gitlink)
+          git add external/blog-content
+
+          if git diff --cached --quiet; then
+            echo "No submodule changes to commit."
+            echo "NO_CHANGES=true" >> $GITHUB_ENV
+          else
+            echo "NO_CHANGES=false" >> $GITHUB_ENV
+            echo "BLOG_SHA=$(git -C external/blog-content rev-parse --short HEAD)" >> $GITHUB_ENV
+          fi
+
+      - name: Create or update PR
+        if: env.NO_CHANGES != 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/bump-blog-submodule
+          delete-branch: true
+          title: "chore(blog): bump submodule to ${{ env.BLOG_SHA }}"
+          commit-message: "chore(blog): bump blog submodule to ${{ env.BLOG_SHA }}"
+          body: |
+            Automated update: advances `external/blog-content` to the latest commit on `Gray-Rice-Blogs/main`.
+
+            This keeps the main site rendering posts from the `external/` submodule path without copying files.
+          labels: |
+            automation
+            blog
