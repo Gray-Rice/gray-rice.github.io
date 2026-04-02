@@ -5,8 +5,7 @@ Blog content is maintained in a separate repository and pulled in via Git submod
 
 ## Live URL
 
-Project Pages URL:
-`https://grayrice.github.io/GrayRice/`
+[Project Pages URL](https://gray-rice.github.io/)
 
 ## Local setup
 
@@ -37,10 +36,21 @@ Project Pages URL:
 
 ## Content workflow
 
+### Repositories
 - Blog posts are authored in `gray-rice-blogs`.
 - This repo includes that repo as a submodule at `external/blog-content`.
-- During build, posts are copied into `_posts/`.
+- During the Pages build, posts are copied into this repo’s root `_posts/` via `./scripts/sync_blog.sh`.
+
+### Automated submodule bump PRs
+When you push new blog content to the blog repository, a GitHub Actions workflow automatically triggers this repository to:
+1. Update the `external/blog-content` submodule pointer to the latest blog commit, and
+2. Open (or update) a pull request (PR) on this repo with that submodule bump.
+
+After merging that PR, GitHub Pages rebuilds and publishes the new posts.
+
+> Note: Auto-merge is not enabled yet. For now, you still need to manually merge the generated PR.
 
 ## Deploy
 
-Push to `main`. GitHub Actions builds and deploys to GitHub Pages automatically.
+- Main site deploys on push to `main` (including merges).
+- GitHub Actions builds and deploys to GitHub Pages automatically.
